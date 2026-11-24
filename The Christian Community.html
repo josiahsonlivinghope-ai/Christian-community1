@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>The Christian Community</title>
+<style>
+:root{--bg:#0e2347;--card:#ffffff;--ink:#14284b;--mut:#5b6b88;--sage:#9bb7e6;--sage2:#2f5aa8;--line:#d6dfef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3,.v p,.big{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;font-weight:normal}
+header{text-align:center;padding:28px 16px 8px}h1{margin:0;font-size:1.7rem;letter-spacing:.02em}
+nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:10px 12px 18px}
+button,select,input{font:inherit;color:var(--ink)}
+nav button,.chip,.btn,.sv{background:transparent;border:1px solid var(--sage);border-radius:999px;padding:6px 14px;cursor:pointer}
+nav button.on,.btn{background:var(--sage);}
+.btn{padding:10px 22px}
+main{max-width:720px;margin:0 auto;padding:0 16px 56px}
+section[hidden]{display:none}
+.big{font-size:1.6rem;text-align:center;margin:18px 0 14px}
+input[type=text],select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+#feel{font-size:1.15rem;padding:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row>*{flex:1 1 140px}
+.v{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:12px 0}
+.v p{margin:0 0 8px;font-size:1.12rem}.r{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:.9rem}
+.sv{font-size:.85rem;padding:3px 12px}
+.note{color:var(--mut);font-size:.92rem;border-left:3px solid var(--sage);padding-left:12px;margin:14px 0}
+.enc{text-align:center;font-family:Georgia,serif;font-style:italic;color:var(--sage2);margin:18px 0}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin:10px 0}summary{cursor:pointer;font-family:Georgia,serif;font-size:1.1rem}
+h2{font-size:1.3rem;margin:20px 0 6px}.cap{text-transform:capitalize}
+body{color:#fff}nav button,.chip{color:#fff}nav button.on{color:var(--ink)}.v,details{color:var(--ink)}.v .chip,.v .sv{color:var(--sage2);border-color:var(--sage2)}.note{color:#c9d6ef}.v .note,details .note{color:var(--mut)}.enc{color:#d6e4ff}.r a{color:var(--sage2)}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}.opt.ok{background:#dff1e3;border-color:#5aa36b}.opt.no{background:#fbe3e3;border-color:#c06666}
+</style></head><body>
+<header><h1>The Christian Community</h1><div class="note" style="border:0;margin:4px 0 0">A welcoming place for Scripture, worship and encouragement. Free, always.</div></header>
+<nav id="nav"><button data-s="home" class="on">Home</button><button data-s="bible">Bible</button><button data-s="topics">Topics</button><button data-s="daily">Daily</button><button data-s="dev">Devotional</button><button data-s="quiz">Quiz</button><button data-s="songs">Songs</button><button data-s="saved">Saved</button></nav>
+<main>
+<section id="home"><div class="big">How are you feeling today?</div>
+<input type="text" id="feel" placeholder="Tell me in your own words…" aria-label="How are you feeling today?">
+<div class="chips" id="chips"></div><div style="text-align:center"><button class="btn" id="go">Find Scripture</button></div><div id="out"></div></section>
+
+<section id="bible" hidden><div class="row"><select id="tr" aria-label="Translation"><option>KJV</option><option>NKJV</option><option>NIV</option><option>ESV</option><option>Amplified</option><option>NLT</option><option>The Message</option></select></div>
+<div class="row"><select id="bk" aria-label="Book"></select><select id="ch" aria-label="Chapter"></select></div>
+<div class="row"><button class="chip" id="pv">← Previous</button><button class="chip" id="nx">Next →</button></div>
+<div class="row"><input type="text" id="q" placeholder="Search: John 3:16, Psalms 23, or a keyword" aria-label="Search"><button class="btn" id="qs" style="flex:0 0 auto">Search</button></div>
+<h2 id="bh"></h2><div id="bt" style="white-space:pre-wrap"></div></section>
+
+<section id="topics" hidden><div class="chips" id="tp"></div><div id="tv"></div></section>
+<section id="daily" hidden><div class="big">Today’s encouragement</div><div id="dv"></div></section>
+<section id="dev" hidden><div class="big">Peace in Chaos</div><div class="note">A devotional for loud seasons. Days 1–7 are here.</div><div id="dl"></div></section>
+<section id="saved" hidden><div class="big">Saved verses</div><div id="sl"></div></section>
+<section id="quiz" hidden><div class="big">Bible quiz</div><div id="qz"></div></section>
+<section id="songs" hidden><div class="big">Gospel songs</div><div class="note">A selection of hymns and worship songs. Lyrics aren’t shown because most are copyrighted. “Listen” opens a search in a new tab.</div><div id="sg"></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const API="";/* set to your own server-side proxy URL that holds the Bible API key */
+const V={
+ps46_10:["Psalm 46:10","Be still, and know that I am God."],
+phil4_6_7:["Philippians 4:6–7","Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."],
+john14_27:["John 14:27","Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid."],
+mt11_28:["Matthew 11:28","Come unto me, all ye that labour and are heavy laden, and I will give you rest."],
+pet5_7:["1 Peter 5:7","Casting all your care upon him; for he careth for you."],
+isa41_10:["Isaiah 41:10","Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."],
+ps23_4:["Psalm 23:4","Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me."],
+ps23_1:["Psalm 23:1","The LORD is my shepherd; I shall not want."],
+ps34_18:["Psalm 34:18","The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."],
+mt5_4:["Matthew 5:4","Blessed are they that mourn: for they shall be comforted."],
+ps147_3:["Psalm 147:3","He healeth the broken in heart, and bindeth up their wounds."],
+jas1_19:["James 1:19–20","Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath: for the wrath of man worketh not the righteousness of God."],
+prov15_1:["Proverbs 15:1","A soft answer turneth away wrath: but grievous words stir up anger."],
+rom15_13:["Romans 15:13","Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost."],
+jer29_11:["Jeremiah 29:11","For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."],
+th5_18:["1 Thessalonians 5:18","In every thing give thanks: for this is the will of God concerning you in Christ Jesus."],
+ps107_1:["Psalm 107:1","O give thanks unto the LORD, for he is good: for his mercy endureth for ever."],
+deut31_8:["Deuteronomy 31:8","And the LORD, he it is that doth go before thee; he will be with thee, he will not fail thee, neither forsake thee: fear not, neither be dismayed."],
+ps68_6:["Psalm 68:6","God setteth the solitary in families."],
+josh1_9:["Joshua 1:9","Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."],
+phil4_13:["Philippians 4:13","I can do all things through Christ which strengtheneth me."],
+heb11_1:["Hebrews 11:1","Now faith is the substance of things hoped for, the evidence of things not seen."],
+prov3_5:["Proverbs 3:5–6","Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."],
+eph4_32:["Ephesians 4:32","And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ’s sake hath forgiven you."],
+jn1_9:["1 John 1:9","If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness."],
+ps55_22:["Psalm 55:22","Cast thy burden upon the LORD, and he shall sustain thee: he shall never suffer the righteous to be moved."],
+lam3_22:["Lamentations 3:22–23","It is of the LORD’S mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness."],
+ps121_1:["Psalm 121:1–2","I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth."],
+ps4_8:["Psalm 4:8","I will both lay me down in peace, and sleep: for thou, LORD, only makest me to dwell in safety."],
+j3_16:["John 3:16","For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."]};
+const E={
+peace:{n:"Finding peace",w:["peace","calm","quiet","still","restless"],v:["john14_27","phil4_6_7","ps46_10","ps4_8"],r:"Peace in Scripture isn’t the absence of trouble; it’s the quiet assurance that God is present in the middle of it. You can set the noise down for a moment and simply rest in that nearness.",e:"Breathe slowly. You are held, even now."},
+anxiety:{n:"For anxious moments",w:["anxi","worr","overwhelm","panic","nervous","uneasy"],v:["phil4_6_7","pet5_7","isa41_10","mt11_28"],r:"Anxious thoughts often feel like they must be carried alone and solved tonight. Scripture gently invites you to hand each worry to a God who cares for you personally.",e:"You don’t have to carry all of this at once. One breath, one step, one prayer is enough for now."},
+stress:{n:"When life feels heavy",w:["stress","pressure","burn","exhaust","tired","busy","drain"],v:["mt11_28","ps55_22","ps46_10","pet5_7"],r:"When life presses in, rest is not laziness; it is something Jesus offers freely. Setting the load down, even briefly, is an act of trust.",e:"You are allowed to rest. The weight does not have to be yours alone."},
+fear:{n:"When you feel afraid",w:["fear","afraid","scare","terrif","dread"],v:["isa41_10","deut31_8","josh1_9","ps23_4"],r:"Again and again, Scripture meets fear with presence rather than pressure: “I am with thee.” Courage here is not feeling fearless, but knowing you are not walking alone.",e:"Whatever you’re facing, you are not facing it by yourself."},
+grief:{n:"In seasons of grief",w:["grief","griev","loss","lost","died","death","miss","sad","heartbr","mourn","cry","depress"],v:["ps34_18","mt5_4","ps147_3","ps23_4","lam3_22"],r:"Grief is love with nowhere to go, and God does not hurry you through it. The Bible describes a God who draws near to the brokenhearted and stays.",e:"Your tears are seen. Take all the time you need."},
+anger:{n:"When anger rises",w:["anger","angry","mad","furious","resent","frustrat","bitter","irritat"],v:["jas1_19","prov15_1","eph4_32","ps46_10"],r:"Anger is a real human feeling, and Scripture doesn’t shame you for it. It invites you to slow down, breathe, and bring it honestly to God before it takes the lead.",e:"You can be honest with God about how you feel. He can handle it."},
+hope:{n:"Holding on to hope",w:["hope","discourag","future","faith"],v:["rom15_13","jer29_11","lam3_22","heb11_1"],r:"Hope in Scripture is not wishful thinking; it’s a steady confidence that God is still working, even when the next step is unclear.",e:"Mercy is new again this morning, and so is hope."},
+gratitude:{n:"A grateful heart",w:["gratit","grate","thank","bless","joy"],v:["th5_18","ps107_1","lam3_22"],r:"Gratitude turns our eyes toward what is good, even in an imperfect day. A thankful heart doesn’t ignore struggle; it notices grace alongside it.",e:"What a gift to pause and give thanks. Let it settle in."},
+loneliness:{n:"When you feel alone",w:["lone","alone","isolat","abandon","unseen"],v:["deut31_8","ps68_6","ps34_18","isa41_10","ps23_4"],r:"Feeling alone can be one of the heaviest things to carry. Scripture promises that God draws near and places the lonely among others who care.",e:"You are not forgotten. Even now, you are accompanied."}};
+const G={n:"Scripture for where you are",v:["mt11_28","ps34_18","isa41_10","pet5_7"],r:"Whatever you’re feeling doesn’t need the right words to be welcome here. These verses are offered gently, for whatever this moment holds.",e:"You are cared for, just as you are today."};
+const T={peace:[["john14_27","phil4_6_7","ps46_10","ps4_8","rom15_13"],"God’s peace is a gift, not an achievement."],
+anxiety:[["phil4_6_7","pet5_7","mt11_28","ps55_22","isa41_10"],"Worry is invited to become prayer."],
+healing:[["ps147_3","ps34_18","mt5_4","lam3_22","ps23_4"],"God tends to wounds gently and without hurry."],
+forgiveness:[["eph4_32","jn1_9","lam3_22","ps107_1"],"Forgiveness begins with the mercy we have received."],
+strength:[["phil4_13","isa41_10","josh1_9","ps121_1","ps55_22"],"Strength here is borrowed, not manufactured."],
+faith:[["heb11_1","prov3_5","jer29_11","ps23_1","rom15_13"],"Faith is trust walking forward without full sight."],
+hope:[["rom15_13","jer29_11","lam3_22","ps121_1"],"Hope is renewed daily, like morning light."],
+guidance:[["prov3_5","ps121_1","jer29_11","deut31_8"],"You are invited to ask, then take the next step."],
+fear:[["isa41_10","josh1_9","deut31_8","ps23_4","john14_27"],"Fear is met with presence."],
+rest:[["mt11_28","ps4_8","ps46_10","pet5_7","ps23_1"],"Rest is a gift God gives freely."]};
+const DL=["Receive this verse slowly, as if for the first time.","You don’t need to fix everything today. Let one truth be enough.","Carry one line of this with you through the day.","Rest in the thought that you are known and loved.","Let this be a gentle companion for today’s steps."];
+const D=[["Be Still in the Storm","ps46_10","Stillness isn’t the absence of noise; it’s choosing where your attention rests. Today, let God be bigger than the loudest thing on your mind.","Father, quiet my racing thoughts and remind me that You are God. Amen.","Sit for two minutes in silence and breathe slowly."],
+["A Different Kind of Peace","john14_27","Jesus offers a peace that doesn’t depend on circumstances. It can be present even when everything around you is unsettled.","Lord, give me Your peace today, the kind the world can’t give. Amen.","Write down one worry, then place it in a drawer as a symbol of handing it over."],
+["Hand It Over","phil4_6_7","Prayer turns worry into conversation. You don’t need polished words, just honesty.","God, here is what I’m anxious about. I trust You with it. Amen.","Say your top three worries out loud as a prayer."],
+["Carried, Not Carrying","pet5_7","You were never meant to carry every burden alone. God cares for you, in the details.","Thank You for caring about what I care about. Help me release my grip. Amen.","Take a slow walk and release one concern with each breath."],
+["Come and Rest","mt11_28","The invitation is simple: come. Rest isn’t something you earn first.","Jesus, I’m tired. I come to You for rest. Amen.","Choose one thing to say no to or postpone today."],
+["You Are Not Alone","isa41_10","Chaos tells us we’re on our own. God says, “I am with thee.”","Thank You for being near. Help me feel Your presence today. Amen.","Reach out to one person with a kind message."],
+["Lie Down in Peace","ps4_8","Peace can be as ordinary as a night of sleep. Safety, in the end, rests in God, not in us.","Father, I lay down today’s worries. Let me rest in Your care. Amen.","Before bed, name one thing you’re grateful for."]];
+const B="Genesis:50|Exodus:40|Leviticus:27|Numbers:36|Deuteronomy:34|Joshua:24|Judges:21|Ruth:4|1 Samuel:31|2 Samuel:24|1 Kings:22|2 Kings:25|1 Chronicles:29|2 Chronicles:36|Ezra:10|Nehemiah:13|Esther:10|Job:42|Psalms:150|Proverbs:31|Ecclesiastes:12|Song of Solomon:8|Isaiah:66|Jeremiah:52|Lamentations:5|Ezekiel:48|Daniel:12|Hosea:14|Joel:3|Amos:9|Obadiah:1|Jonah:4|Micah:7|Nahum:3|Habakkuk:3|Zephaniah:3|Haggai:2|Zechariah:14|Malachi:4|Matthew:28|Mark:16|Luke:24|John:21|Acts:28|Romans:16|1 Corinthians:16|2 Corinthians:13|Galatians:6|Ephesians:6|Philippians:4|Colossians:4|1 Thessalonians:5|2 Thessalonians:3|1 Timothy:6|2 Timothy:4|Titus:3|Philemon:1|Hebrews:13|James:5|1 Peter:5|2 Peter:3|1 John:5|2 John:1|3 John:1|Jude:1|Revelation:22".split("|").map(x=>x.split(":"));
+let sv=[],cur="home",bk=42,ch=3;
+try{sv=JSON.parse(localStorage.getItem("bc")||"[]")}catch(e){}
+const store=()=>{try{localStorage.setItem("bc",JSON.stringify(sv))}catch(e){}};
+const vc=id=>`<div class="v"><p>${V[id][1]}</p><div class="r"><span>${V[id][0]} · KJV</span><button class="sv" data-b="${id}">${sv.includes(id)?"Saved":"Save"}</button></div></div>`;
+function go(n){cur=n;document.querySelectorAll("main section").forEach(s=>s.hidden=s.id!==n);document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.s===n));if(n==="daily")daily();if(n==="saved")showSaved();if(n==="quiz")quizMenu();if(n==="bible")load();window.scrollTo(0,0)}
+function show(d){$("#out").innerHTML=`<h2>${d.n}</h2>${d.v.map(vc).join("")}<p class="v" style="font-family:Georgia,serif">${d.r}</p><p class="enc">${d.e}</p>`}
+function feel(t){t=t.toLowerCase();let best=null,sc=0;for(const k in E){const s=E[k].w.reduce((a,w)=>a+(t.includes(w)?1:0),0);if(s>sc){sc=s;best=k}}show(best?E[best]:G)}
+$("#chips").innerHTML=Object.keys(E).map(k=>`<button class="chip cap" data-e="${k}">${k}</button>`).join("");
+$("#go").onclick=()=>{const t=$("#feel").value.trim();if(t)feel(t)};
+$("#feel").addEventListener("keydown",e=>{if(e.key==="Enter")$("#go").click()});
+$("#tp").innerHTML=Object.keys(T).map(k=>`<button class="chip cap" data-t="${k}">${k}</button>`).join("");
+function topic(k){$("#tv").innerHTML=`<h2 class="cap">${k}</h2><p class="v" style="font-family:Georgia,serif">${T[k][1]}</p>${T[k][0].map(vc).join("")}`}
+function daily(){const d=new Date(),n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5),ids=Object.keys(V);$("#dv").innerHTML=vc(ids[n%ids.length])+`<p class="enc">${DL[n%DL.length]}</p>`}
+function showSaved(){$("#sl").innerHTML=sv.length?sv.map(vc).join(""):'<p class="note">Nothing saved yet. Tap Save on any verse to keep it here.</p>'}
+$("#dl").innerHTML=D.map((d,i)=>`<details><summary>Day ${i+1} · ${d[0]}</summary>${vc(d[1])}<p>${d[2]}</p><p><em>Prayer:</em> ${d[3]}</p><p class="note"><strong>Peace Challenge:</strong> ${d[4]}</p></details>`).join("");
+$("#bk").innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]}</option>`).join("");
+function fillCh(){$("#ch").innerHTML=Array.from({length:+B[bk][1]},(_,i)=>`<option>${i+1}</option>`).join("")}
+function sync(){$("#bk").value=bk;fillCh();$("#ch").value=ch}
+async function load(){const name=B[bk][0],ref=name+" "+ch,t=$("#tr").value;$("#bh").textContent=ref+" · "+t;const o=$("#bt");o.innerHTML="";
+if(API){try{const r=await fetch(API+"?version="+encodeURIComponent(t)+"&ref="+encodeURIComponent(ref));const j=await r.json();o.textContent=j.text;return}catch(e){}}
+const ids=t==="KJV"?Object.keys(V).filter(id=>V[id][0].startsWith(ref+":")):[];
+o.innerHTML=ids.map(vc).join("")+`<p class="note">${ids.length?"Showing the verses built into this app. ":""}Full chapter text for ${t} appears here once a Bible API is connected.</p>`}
+sync();
+$("#bk").onchange=e=>{bk=+e.target.value;ch=1;sync();load()};
+$("#ch").onchange=e=>{ch=+e.target.value;load()};
+$("#tr").onchange=load;
+$("#pv").onclick=()=>{if(ch>1)ch--;else if(bk>0){bk--;ch=+B[bk][1]}sync();load()};
+$("#nx").onclick=()=>{if(ch<+B[bk][1])ch++;else if(bk<65){bk++;ch=1}sync();load()};
+const find=n=>{n=n.toLowerCase();let i=B.findIndex(b=>b[0].toLowerCase()===n);return i<0?B.findIndex(b=>b[0].toLowerCase().startsWith(n)):i};
+function search(){const q=$("#q").value.trim();if(!q)return;const m=q.match(/^(.+?)\s+(\d+)(?::\d+)?$/);let i=m?find(m[1]):find(q);
+if(i>=0&&(!m||+m[2]<=+B[i][1])){bk=i;ch=m?+m[2]:1;sync();load();return}
+const l=q.toLowerCase(),ids=Object.keys(V).filter(id=>(V[id][1]+V[id][0]).toLowerCase().includes(l));$("#bh").textContent="Results for “"+q+"”";
+$("#bt").innerHTML=(ids.length?ids.map(vc).join(""):"")+`<p class="note">Keyword search covers the verses built into this app (KJV). Full-Bible search needs a connected Bible API.</p>`}
+$("#qs").onclick=search;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter")search()});
+document.addEventListener("click",e=>{const n=e.target.closest("[data-s]");if(n){go(n.dataset.s);return}const z=e.target.closest("[data-q]");if(z){if(z.dataset.q==="x")quizMenu();else{qi=+z.dataset.q;qn=0;qs=0;qShow()}return}const a=e.target.closest("[data-o]");if(a){qAns(a);return}const nq=e.target.closest("[data-n]");if(nq){qn++;qShow();return}
+const c=e.target.closest("[data-e]");if(c){show(E[c.dataset.e]);return}
+const t=e.target.closest("[data-t]");if(t){topic(t.dataset.t);return}
+const b=e.target.closest("[data-b]");if(!b)return;const id=b.dataset.b;sv=sv.includes(id)?sv.filter(x=>x!==id):[...sv,id];store();
+document.querySelectorAll('[data-b="'+id+'"]').forEach(x=>x.textContent=sv.includes(id)?"Saved":"Save");if(cur==="saved")showSaved()});
+const Q=[["Old Testament",[["Who built the ark?",["Noah","Moses","Abraham"],0],["Who was swallowed by a great fish?",["Elijah","Jonah","Daniel"],1],["Who defeated Goliath?",["Saul","Samson","David"],2],["Who led the Israelites out of Egypt?",["Moses","Joshua","Aaron"],0]]],
+["New Testament",[["What is the first book of the New Testament?",["John","Matthew","Acts"],1],["In which town was Jesus born?",["Nazareth","Jerusalem","Bethlehem"],2],["How many disciples did Jesus choose?",["7","12","40"],1],["Which disciple denied Jesus three times?",["Peter","Thomas","Andrew"],0]]],
+["General",[["How many books are in the Bible?",["39","66","27"],1],["Which verse is the shortest in the KJV?",["John 11:35","Luke 17:32","Psalm 117:1"],0],["What is the first book of the Bible?",["Exodus","Genesis","Psalms"],1],["Which book has the most chapters?",["Isaiah","Psalms","Genesis"],1]]]];
+let qi=0,qn=0,qs=0;
+function quizMenu(){$("#qz").innerHTML='<div class="chips">'+Q.map((q,i)=>`<button class="chip" data-q="${i}">${q[0]}</button>`).join("")+'</div><p class="note">Choose a quiz to begin.</p>'}
+function qShow(){const set=Q[qi][1];if(qn>=set.length){$("#qz").innerHTML=`<div class="v"><p>You scored ${qs} of ${set.length}.</p><button class="chip" data-q="${qi}">Try again</button> <button class="chip" data-q="x">All quizzes</button></div>`;return}const t=set[qn][0],o=set[qn][1];$("#qz").innerHTML=`<div class="v"><p>${qn+1}. ${t}</p>${o.map((x,i)=>`<button class="opt" data-o="${i}">${x}</button>`).join("")}<div id="fb"></div></div>`}
+function qAns(a){const set=Q[qi][1],r=set[qn][2],i=+a.dataset.o;document.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;if(j===r)b.classList.add("ok");else if(j===i)b.classList.add("no")});if(i===r)qs++;$("#fb").innerHTML=`<p>${i===r?"Correct.":"Not quite."}</p><button class="chip" data-n="1">${qn+1<set.length?"Next":"See score"}</button>`}
+const S=[["Amazing Grace","John Newton"],["How Great Thou Art","Carl Boberg / Stuart K. Hine"],["It Is Well with My Soul","Horatio Spafford"],["Great Is Thy Faithfulness","Thomas Chisholm"],["Blessed Assurance","Fanny Crosby"],["Way Maker","Sinach"],["Goodness of God","Bethel Music"],["10,000 Reasons","Matt Redman"],["Reckless Love","Cory Asbury"],["What a Beautiful Name","Hillsong Worship"],["Oceans (Where Feet May Fail)","Hillsong UNITED"]];
+$("#sg").innerHTML=S.map(s=>`<div class="v"><p>${s[0]}</p><div class="r"><span>${s[1]}</span><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(s[0]+" "+s[1])}" target="_blank" rel="noopener">Listen ↗</a></div></div>`).join("");
+topic("peace");
+</script></body></html>
